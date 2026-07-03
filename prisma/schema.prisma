@@ -1,0 +1,102 @@
+// CubeHub data model.
+//
+// V1 serves this domain from curated seed data (src/lib/data) through the
+// data-access layer in src/server/catalog.ts. This schema is the future-ready
+// target: when we move to Postgres (and later a dedicated NestJS service, per
+// 05_Architecture.md), the catalog functions swap their implementation while
+// page components stay untouched.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  PLL
+  OLL
+  F2L
+  Cross
+}
+
+enum Difficulty {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+model Method {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  name         String
+  abbreviation String?
+  inventor     String
+  year         String
+  difficulty   Difficulty
+  summary      String
+  steps        String[]
+  pros         String[]
+  cons         String[]
+  cases        AlgorithmCase[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model AlgorithmCase {
+  id          String             @id @default(cuid())
+  slug        String             @unique
+  name        String
+  category    Category
+  group       String?
+  aliases     String[]
+  summary     String
+  recognition String
+  method      Method             @relation(fields: [methodId], references: [id])
+  methodId    String
+  variants    AlgorithmVariant[]
+  // Community layer (Version 3+): ratings, collections.
+  ratings     Rating[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([category])
+}
+
+model AlgorithmVariant {
+  id        String        @id @default(cuid())
+  notation  String
+  label     String?
+  note      String?
+  order     Int           @default(0)
+  case      AlgorithmCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId    String
+}
+
+// ---------------------------------------------------------------------------
+// Community & accounts (Version 3+). Modeled now so the schema is ready.
+// ---------------------------------------------------------------------------
+
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  handle      String    @unique
+  displayName String?
+  avatarUrl   String?
+  ratings     Rating[]
+  createdAt   DateTime  @default(now())
+}
+
+model Rating {
+  id        String        @id @default(cuid())
+  value     Int // 1..5
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  case      AlgorithmCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId    String
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, caseId])
+}

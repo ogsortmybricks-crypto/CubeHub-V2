@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/*
+  CubeHub design system — dark by default.
+  "Dark mode should be the primary design language." — 04_User Experience.md
+  Tokens are exposed to Tailwind v4 via @theme so utilities like bg-surface, text-muted work.
+*/
+
+@theme {
+  --color-bg: #07080c;
+  --color-bg-elevated: #0d0f16;
+  --color-surface: #12141d;
+  --color-surface-hover: #191c28;
+  --color-border: #242838;
+  --color-border-strong: #333849;
+
+  --color-fg: #f2f4fb;
+  --color-muted: #a2a8bd;
+  --color-faint: #6b7185;
+
+  --color-brand: #6d5cff;
+  --color-brand-soft: #8b7dff;
+  --color-brand-dim: #2a2550;
+
+  --color-accent: #16d6c6;
+
+  /* Speedcube sticker palette (Western scheme) — reused by the 3D viewer. */
+  --color-cube-u: #f7f7f7;
+  --color-cube-d: #ffd500;
+  --color-cube-f: #009d54;
+  --color-cube-b: #3d81f6;
+  --color-cube-r: #dc422f;
+  --color-cube-l: #ff8a1e;
+
+  --radius-card: 16px;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+}
+
+/* Ambient brand glow behind the app — subtle, "modern without becoming distracting". */
+.app-aurora::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 40rem at 15% -10%, rgba(109, 92, 255, 0.14), transparent 60%),
+    radial-gradient(50rem 35rem at 100% 0%, rgba(22, 214, 198, 0.08), transparent 55%);
+  pointer-events: none;
+}
+
+/* Thin, unobtrusive scrollbars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Accessibility: honor reduced-motion. "Adjustable animations." — 04_User Experience.md */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Focus visibility for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--color-brand-soft);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@utility card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
